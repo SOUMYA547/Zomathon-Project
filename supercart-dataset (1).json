@@ -1,0 +1,165 @@
+{
+  "menu_items": [
+    { "id": "M001", "name": "Chicken Biryani", "category": "main", "cuisine": "mughlai", "price": 299, "emoji": "🍛", "tags": ["spicy","non-veg","popular"], "margin": 0.62, "calories": 580 },
+    { "id": "M002", "name": "Mutton Biryani", "category": "main", "cuisine": "mughlai", "price": 379, "emoji": "🍖", "tags": ["spicy","non-veg","premium"], "margin": 0.55, "calories": 650 },
+    { "id": "M003", "name": "Veg Biryani", "category": "main", "cuisine": "mughlai", "price": 199, "emoji": "🥘", "tags": ["mild","veg","popular"], "margin": 0.70, "calories": 420 },
+    { "id": "M004", "name": "Masala Dosa", "category": "main", "cuisine": "south_indian", "price": 129, "emoji": "🫓", "tags": ["mild","veg","popular"], "margin": 0.75, "calories": 350 },
+    { "id": "M005", "name": "Butter Chicken", "category": "main", "cuisine": "north_indian", "price": 319, "emoji": "🍗", "tags": ["mild","non-veg","popular"], "margin": 0.60, "calories": 490 },
+    { "id": "M006", "name": "Coke 500ml", "category": "drink", "cuisine": "universal", "price": 55, "emoji": "🥤", "tags": ["cold","popular"], "margin": 0.80, "calories": 210 },
+    { "id": "M007", "name": "Lassi (Sweet)", "category": "drink", "cuisine": "north_indian", "price": 60, "emoji": "🥛", "tags": ["cold","sweet","popular"], "margin": 0.82, "calories": 180 },
+    { "id": "M008", "name": "Masala Chai", "category": "drink", "cuisine": "universal", "price": 30, "emoji": "🫖", "tags": ["hot","comfort"], "margin": 0.85, "calories": 90 },
+    { "id": "M009", "name": "Filter Coffee", "category": "drink", "cuisine": "south_indian", "price": 35, "emoji": "☕", "tags": ["hot","south_indian"], "margin": 0.87, "calories": 80 },
+    { "id": "M010", "name": "Fries (Large)", "category": "side", "cuisine": "universal", "price": 89, "emoji": "🍟", "tags": ["crispy","popular"], "margin": 0.78, "calories": 365 },
+    { "id": "M011", "name": "Onion Salad", "category": "side", "cuisine": "universal", "price": 39, "emoji": "🧅", "tags": ["fresh","popular"], "margin": 0.90, "calories": 30 },
+    { "id": "M012", "name": "Raita", "category": "side", "cuisine": "universal", "price": 49, "emoji": "🥗", "tags": ["cooling","popular"], "margin": 0.88, "calories": 65 },
+    { "id": "M013", "name": "Gulab Jamun (2pc)", "category": "dessert", "cuisine": "universal", "price": 49, "emoji": "🍮", "tags": ["sweet","hot","popular"], "margin": 0.82, "calories": 280 },
+    { "id": "M014", "name": "Ice Cream (Scoop)", "category": "dessert", "cuisine": "universal", "price": 65, "emoji": "🍨", "tags": ["cold","sweet","popular"], "margin": 0.78, "calories": 200 },
+    { "id": "M015", "name": "Chocolate Mousse", "category": "dessert", "cuisine": "universal", "price": 99, "emoji": "🍫", "tags": ["sweet","premium"], "margin": 0.72, "calories": 320 },
+    { "id": "M016", "name": "Garlic Naan", "category": "bread", "cuisine": "north_indian", "price": 45, "emoji": "🫓", "tags": ["popular","veg"], "margin": 0.82, "calories": 180 },
+    { "id": "M017", "name": "Pakoras (6pc)", "category": "snack", "cuisine": "north_indian", "price": 79, "emoji": "🥟", "tags": ["hot","rainy","comfort"], "margin": 0.80, "calories": 290 },
+    { "id": "M018", "name": "Pickle (Achar)", "category": "condiment", "cuisine": "universal", "price": 25, "emoji": "🫙", "tags": ["tangy","popular"], "margin": 0.93, "calories": 20 }
+  ],
+
+  "combo_rules": [
+    {
+      "id": "C001",
+      "trigger_item": "M001",
+      "add_on": "M006",
+      "combo_name": "Biryani + Coke",
+      "pairing_score": 0.94,
+      "orders_together": 12400,
+      "quote": "Life is better with biryani and a cold sip 🥤",
+      "music_line": "♪ Tujhe dekha toh yeh jaana sanam... (Dilwale vibes)",
+      "social_tag": "Trending on Instagram #BiryaniBoss",
+      "discount_pct": 31,
+      "combo_price": 329
+    },
+    {
+      "id": "C002",
+      "trigger_item": "M001",
+      "add_on": "M013",
+      "combo_name": "Biryani + Gulab Jamun",
+      "pairing_score": 0.88,
+      "orders_together": 8900,
+      "quote": "Love is sharing the last sweet ❤️",
+      "music_line": "♪ Aaj khush toh bahut hoge tum 🍨",
+      "social_tag": "5K+ ordered this week",
+      "discount_pct": 20,
+      "combo_price": 329
+    },
+    {
+      "id": "C003",
+      "trigger_item": "M004",
+      "add_on": "M009",
+      "combo_name": "Dosa + Filter Coffee",
+      "pairing_score": 0.97,
+      "orders_together": 18600,
+      "quote": "South India in every sip and bite ☕",
+      "music_line": "♪ Enna solla pogirai... (AR Rahman classic)",
+      "social_tag": "Chennai's #1 Breakfast Combo",
+      "discount_pct": 15,
+      "combo_price": 149
+    },
+    {
+      "id": "C004",
+      "trigger_item": "M005",
+      "add_on": "M016",
+      "combo_name": "Butter Chicken + Naan",
+      "pairing_score": 0.96,
+      "orders_together": 21000,
+      "quote": "Made for each other, just like this combo 🍗",
+      "music_line": "♪ Yeh dosti hum nahi todenge... (Sholay)",
+      "social_tag": "Most ordered combo in Delhi NCR",
+      "discount_pct": 18,
+      "combo_price": 339
+    },
+    {
+      "id": "C005",
+      "trigger_item": "M003",
+      "add_on": "M007",
+      "combo_name": "Veg Biryani + Lassi",
+      "pairing_score": 0.89,
+      "orders_together": 7200,
+      "quote": "Keep it pure, keep it cool 🥛",
+      "music_line": "♪ Ek pyaar ka nagma hai... (timeless)",
+      "social_tag": "Trending among vegetarians",
+      "discount_pct": 25,
+      "combo_price": 239
+    }
+  ],
+
+  "frequently_bought_together": {
+    "M001": ["M011","M012","M018","M013","M006"],
+    "M002": ["M011","M012","M006","M013"],
+    "M003": ["M011","M007","M012","M018"],
+    "M004": ["M009","M011","M018"],
+    "M005": ["M016","M006","M012","M014"]
+  },
+
+  "contextual_rules": {
+    "weather": {
+      "hot":   ["M006","M007","M014"],
+      "rainy": ["M008","M017","M013"],
+      "cold":  ["M008","M017","M013"],
+      "mild":  ["M006","M010","M014"]
+    },
+    "time_of_day": {
+      "morning":   ["M009","M008","M004"],
+      "afternoon": ["M006","M010","M012"],
+      "evening":   ["M017","M008","M013"],
+      "night":     ["M013","M014","M015"]
+    }
+  },
+
+  "users": [
+    {
+      "id": "U001", "name": "Arjun Sharma",
+      "preference": "spicy", "dietary": "non-veg",
+      "sweet_lover": true, "city": "Bengaluru", "area": "Indiranagar",
+      "order_history": ["M001","M006","M013","M011","M001","M005","M016"],
+      "removed_items": [],
+      "loyalty_points": 340,
+      "combo_passport_progress": 3
+    },
+    {
+      "id": "U002", "name": "Priya Menon",
+      "preference": "mild", "dietary": "veg",
+      "sweet_lover": false, "city": "Chennai", "area": "T. Nagar",
+      "order_history": ["M004","M009","M003","M007","M004","M018"],
+      "removed_items": ["onion"],
+      "loyalty_points": 210,
+      "combo_passport_progress": 1
+    },
+    {
+      "id": "U003", "name": "Rahul Singh",
+      "preference": "mild", "dietary": "non-veg",
+      "sweet_lover": true, "city": "Delhi", "area": "Connaught Place",
+      "order_history": ["M005","M016","M006","M015","M005","M012"],
+      "removed_items": [],
+      "loyalty_points": 580,
+      "combo_passport_progress": 4
+    }
+  ],
+
+  "local_favorites": {
+    "Bengaluru": {
+      "Indiranagar": { "item": "M009", "label": "People in Indiranagar usually add Filter Coffee with Biryani" },
+      "Koramangala": { "item": "M006", "label": "Koramangala foodies swear by Biryani + Coke" }
+    },
+    "Chennai": {
+      "T. Nagar": { "item": "M009", "label": "T. Nagar's iconic Dosa + Filter Coffee combo" }
+    },
+    "Delhi": {
+      "Connaught Place": { "item": "M016", "label": "CP's favourite — Butter Chicken + Garlic Naan" }
+    }
+  },
+
+  "promoted_combos": [
+    {
+      "restaurant": "Biryani Blues",
+      "combo": "C001",
+      "sponsored": true,
+      "label": "Sponsored · Best Value"
+    }
+  ]
+}

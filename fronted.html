@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Cart — Meal Intelligence Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS & RESET
+═══════════════════════════════════════════ */
+:root {
+  --red:#E23744; --orange:#FF6B35; --gold:#FFB830;
+  --green:#2ECC71; --blue:#4A9EFF; --purple:#7B5EA7;
+  --dark:#0C0C0C; --surface:#141414; --card:#1C1C1C;
+  --card2:#222; --border:#2A2A2A; --border2:#333;
+  --text:#F2F2F2; --muted:#777; --muted2:#555;
+  --white:#fff;
+  --r-sm:10px; --r-md:16px; --r-lg:24px; --r-xl:32px;
+  --shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;}
+button{cursor:pointer;font-family:'Nunito',sans-serif;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--dark);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.app-shell {
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 16px 80px;
+  display:grid;
+  grid-template-columns:1fr 340px;
+  gap:24px;
+  align-items:start;
+}
+@media(max-width:860px){.app-shell{grid-template-columns:1fr;}}
+
+/* ═══════════════════════════════════════════
+   TOP NAV
+═══════════════════════════════════════════ */
+.topnav {
+  background: rgba(14,14,14,0.96);
+  backdrop-filter: blur(12px);
+  position: sticky; top:0; z-index:100;
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display:flex; align-items:center; gap:16px;
+  margin-bottom:24px;
+}
+.nav-logo { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; }
+.nav-logo span { color:var(--red); }
+.nav-subtitle { font-size:12px; color:var(--muted); margin-left:4px; }
+.nav-controls { margin-left:auto; display:flex; gap:10px; align-items:center; }
+.ctx-select {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size:12px;
+  font-family:'Nunito',sans-serif;
+}
+.ctx-select:focus { outline:none; border-color:var(--red); }
+.user-pill {
+  background: rgba(226,55,68,0.12);
+  border: 1px solid rgba(226,55,68,0.25);
+  color:var(--red);
+  border-radius:20px;
+  padding:6px 14px;
+  font-size:12px;
+  font-weight:700;
+}
+
+/* ═══════════════════════════════════════════
+   LEFT COLUMN — CART + RECS
+═══════════════════════════════════════════ */
+.section-title {
+  font-family:'Syne',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.5px;
+  display:flex; align-items:center; gap:8px;
+  padding:16px 0 10px;
+  position:relative;
+}
+.section-title .badge {
+  font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;
+}
+.badge-red { background:rgba(226,55,68,0.15); color:var(--red); border:1px solid rgba(226,55,68,0.3); }
+.badge-gold { background:rgba(255,184,48,0.15); color:var(--gold); border:1px solid rgba(255,184,48,0.3); }
+.badge-green { background:rgba(46,204,113,0.12); color:var(--green); border:1px solid rgba(46,204,113,0.25); }
+.badge-blue { background:rgba(74,158,255,0.12); color:var(--blue); border:1px solid rgba(74,158,255,0.25); }
+.badge-purple { background:rgba(123,94,167,0.15); color:var(--purple); border:1px solid rgba(123,94,167,0.3); }
+
+/* ─── CART ─── */
+.cart-block {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.cart-header {
+  background: var(--red);
+  padding: 16px 20px;
+  display:flex; align-items:center; gap:10px;
+}
+.cart-header h2 { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; }
+.cart-count {
+  margin-left:auto;
+  background:rgba(255,255,255,0.2);
+  border-radius:12px; padding:3px 12px;
+  font-size:12px; font-weight:700;
+}
+
+.cart-item {
+  display:flex; align-items:center; gap:12px;
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  animation: slideIn 0.3s ease;
+}
+.cart-item:last-child { border-bottom:none; }
+@keyframes slideIn { from{opacity:0;transform:translateX(-10px);} to{opacity:1;transform:none;} }
+.item-emoji { font-size:34px; flex-shrink:0; }
+.item-info { flex:1; }
+.item-info h4 { font-size:14px; font-weight:700; }
+.item-info p { font-size:12px; color:var(--muted); margin-top:2px; }
+.item-tags { display:flex; gap:4px; margin-top:4px; }
+.item-tag { font-size:10px; background:var(--card2); border-radius:6px; padding:1px 6px; color:var(--muted); }
+.qty-row { display:flex; align-items:center; gap:8px; }
+.qty-btn {
+  width:28px; height:28px;
+  background:rgba(226,55,68,0.1);
+  border:1px solid rgba(226,55,68,0.25);
+  color:var(--red); border-radius:8px;
+  font-size:16px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .15s;
+}
+.qty-btn:hover { background:rgba(226,55,68,0.25); }
+.qty-num { font-size:14px; font-weight:700; min-width:20px; text-align:center; }
+.item-price { font-family:'Syne',sans-serif; font-size:15px; font-weight:800; color:var(--gold); }
+
+/* Feedback bar */
+.feedback-bar {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 20px;
+  background:rgba(255,184,48,0.05);
+  border-bottom:1px solid var(--border);
+}
+.stars-sm { color:var(--gold); font-size:11px; }
+.fb-text { font-size:11px; color:var(--muted); font-style:italic; flex:1; }
+.fb-name { font-size:10px; color:var(--muted2); }
+
+/* ─── FREE DELIVERY PROGRESS ─── */
+.delivery-bar-block {
+  padding:12px 20px;
+  background:rgba(46,204,113,0.05);
+  border-bottom:1px solid var(--border);
+}
+.delivery-label { font-size:12px; color:var(--green); font-weight:600; margin-bottom:6px; }
+.prog-track {
+  background:var(--border2);
+  border-radius:99px; height:6px;
+}
+.prog-fill {
+  background: linear-gradient(90deg, var(--green), #27AE60);
+  border-radius:99px; height:6px;
+  transition: width .5s ease;
+}
+.delivery-hint { font-size:11px; color:var(--muted); margin-top:4px; }
+
+/* ─── COMBO CARD ─── */
+.combo-card {
+  background: linear-gradient(135deg, #1A1208 0%, #1C1C1C 100%);
+  border: 1px solid rgba(255,184,48,0.2);
+  border-radius:var(--r-md);
+  overflow:hidden;
+  margin-bottom:16px;
+  position:relative;
+  transition: transform .2s, box-shadow .2s;
+}
+.combo-card:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,0.4); }
+.combo-top-badge {
+  position:absolute; top:14px; right:14px;
+  background:linear-gradient(135deg,var(--red),var(--orange));
+  color:#fff; font-size:10px; font-weight:700;
+  padding:3px 10px; border-radius:10px;
+  display:flex; align-items:center; gap:4px;
+}
+.combo-content { padding:18px; }
+.combo-foods { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.combo-food-box {
+  width:64px; height:64px; border-radius:14px;
+  background:rgba(255,255,255,0.04);
+  display:flex; align-items:center; justify-content:center;
+  font-size:34px; border:1px solid var(--border2);
+}
+.combo-plus-txt { color:var(--muted); font-size:22px; font-weight:300; }
+.combo-text h4 { font-size:14px; font-weight:700; margin-bottom:6px; }
+.combo-quote {
+  font-size:12px; color:var(--gold);
+  font-style:italic; line-height:1.5; margin-bottom:5px;
+}
+.combo-music { font-size:11px; color:var(--green); display:flex; align-items:center; gap:5px; }
+.combo-footer {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 18px 16px;
+  border-top:1px solid rgba(255,255,255,0.04);
+}
+.social-proof { flex:1; }
+.social-orders { font-size:11px; color:var(--red); font-weight:600; }
+.social-rating { font-size:11px; color:var(--muted); margin-top:2px; }
+.social-rating span { color:var(--gold); }
+.price-block { text-align:right; }
+.price-original { font-size:11px; color:var(--muted); text-decoration:line-through; }
+.price-offer { font-size:14px; font-weight:800; color:var(--green); font-family:'Syne',sans-serif; }
+.price-save { font-size:10px; color:var(--green); }
+.btn-add-combo {
+  width:100%; padding:13px;
+  background:linear-gradient(135deg,var(--red),var(--orange));
+  color:#fff; border:none; border-radius:var(--r-sm);
+  font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:transform .15s, box-shadow .15s;
+  margin-top:12px;
+}
+.btn-add-combo:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(226,55,68,0.4); }
+
+/* ─── HORIZONTAL SCROLL ─── */
+.h-scroll {
+  display:flex; gap:10px;
+  overflow-x:auto; padding-bottom:10px;
+  scrollbar-width:none;
+}
+.h-scroll::-webkit-scrollbar{display:none;}
+.scroll-hint-txt { font-size:11px; color:var(--muted); margin-bottom:6px; display:flex; align-items:center; gap:4px; }
+
+.h-card {
+  flex-shrink:0; width:90px;
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:var(--r-md); padding:10px 8px;
+  text-align:center; cursor:pointer;
+  transition:border-color .2s, transform .15s, background .2s;
+  position:relative;
+}
+.h-card:hover { border-color:var(--red); transform:scale(1.04); }
+.h-card.selected { border-color:var(--green); background:rgba(46,204,113,0.08); }
+.h-card .check-badge {
+  position:absolute; top:-7px; right:-7px;
+  width:20px; height:20px; border-radius:50%;
+  background:var(--green); color:#fff;
+  font-size:11px; display:none; align-items:center; justify-content:center;
+  font-weight:700;
+}
+.h-card.selected .check-badge { display:flex; }
+.h-emoji { font-size:30px; display:block; margin-bottom:4px; }
+.h-name { font-size:10px; font-weight:700; line-height:1.3; margin-bottom:3px; }
+.h-price { font-size:12px; font-weight:800; color:var(--gold); font-family:'Syne',sans-serif; }
+.h-deal { font-size:9px; color:var(--green); margin-top:2px; }
+
+/* ─── FREQUENTLY BOUGHT ─── */
+.freq-card {
+  display:flex; align-items:center; gap:12px;
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:var(--r-md); padding:12px 16px;
+  margin-bottom:8px; cursor:pointer;
+  transition:border-color .2s, background .2s;
+}
+.freq-card:hover { border-color:rgba(226,55,68,0.35); }
+.freq-card.added { border-color:var(--green); background:rgba(46,204,113,0.06); }
+.freq-emoji { font-size:30px; }
+.freq-info { flex:1; }
+.freq-info h4 { font-size:13px; font-weight:700; }
+.freq-info .freq-sub { font-size:11px; color:var(--muted); }
+.freq-right { text-align:right; }
+.freq-price { font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:var(--gold); }
+.freq-add-btn {
+  background:rgba(226,55,68,0.1);
+  border:1px solid rgba(226,55,68,0.3);
+  color:var(--red); border-radius:8px;
+  padding:4px 12px; font-size:11px; font-weight:700;
+  margin-top:4px;
+  transition:background .15s;
+}
+.freq-add-btn:hover, .freq-card.added .freq-add-btn { background:rgba(46,204,113,0.15); color:var(--green); border-color:rgba(46,204,113,0.3); }
+
+/* ─── SUPER CART ─── */
+.super-cart-block {
+  background:linear-gradient(135deg, #0A1628 0%, #111 100%);
+  border:1px solid rgba(74,158,255,0.2);
+  border-radius:var(--r-lg); padding:18px;
+  margin-bottom:16px;
+}
+.super-header { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+.super-header h3 { font-family:'Syne',sans-serif; font-size:14px; font-weight:800; }
+.super-item {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.super-item:last-child { border-bottom:none; }
+.super-emoji { font-size:26px; }
+.super-info { flex:1; }
+.super-info h4 { font-size:12px; font-weight:700; }
+.super-info .reason { font-size:11px; color:var(--muted); font-style:italic; }
+.super-info .reason.green { color:var(--green); }
+.super-info .reason.gold { color:var(--gold); }
+.super-add-btn {
+  background:rgba(74,158,255,0.1);
+  border:1px solid rgba(74,158,255,0.3);
+  color:var(--blue); border-radius:8px;
+  padding:5px 12px; font-size:11px; font-weight:700;
+  transition:background .15s;
+}
+.super-add-btn:hover { background:rgba(74,158,255,0.2); }
+
+/* ─── LOCAL FAVORITE ─── */
+.local-fav {
+  background:rgba(123,94,167,0.08);
+  border:1px solid rgba(123,94,167,0.2);
+  border-radius:var(--r-md); padding:12px 16px;
+  margin-bottom:16px;
+  display:flex; align-items:center; gap:12px;
+}
+.local-icon { font-size:22px; }
+.local-text { font-size:12px; color:var(--muted); font-style:italic; flex:1; line-height:1.5; }
+.local-item-name { font-weight:700; color:var(--text); font-style:normal; }
+
+/* ─── COMBO PASSPORT ─── */
+.passport-block {
+  background:linear-gradient(135deg,#1a1208,#111);
+  border:1px solid rgba(255,184,48,0.2);
+  border-radius:var(--r-md); padding:14px;
+  margin-bottom:16px;
+}
+.passport-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.passport-header h4 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--gold); }
+.passport-prog-track { background:var(--border2); border-radius:99px; height:8px; margin:6px 0; }
+.passport-prog-fill { background:linear-gradient(90deg,var(--gold),var(--orange)); border-radius:99px; height:8px; transition:width .6s ease; }
+.passport-labels { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:4px; }
+.passport-reward { font-size:12px; color:var(--gold); margin-top:8px; font-weight:600; }
+
+/* ─── ORDER SUMMARY ─── */
+.summary-block {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:18px; margin-bottom:16px;
+}
+.summary-block h3 { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:14px; }
+.summary-row {
+  display:flex; justify-content:space-between;
+  font-size:13px; padding:5px 0; color:var(--muted);
+}
+.summary-row.saving { color:var(--green); }
+.summary-row.total {
+  border-top:1px solid var(--border);
+  margin-top:8px; padding-top:12px;
+  color:var(--text); font-weight:800; font-size:15px;
+}
+.btn-checkout {
+  width:100%; padding:16px;
+  background:linear-gradient(135deg,var(--red),#c0392b);
+  color:#fff; border:none; border-radius:var(--r-md);
+  font-family:'Syne',sans-serif; font-size:15px; font-weight:800;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:transform .15s, box-shadow .15s;
+}
+.btn-checkout:hover { transform:scale(1.02); box-shadow:0 8px 28px rgba(226,55,68,0.45); }
+
+/* ═══════════════════════════════════════════
+   RIGHT COLUMN — CONTEXT & METRICS
+═══════════════════════════════════════════ */
+.right-panel { display:flex; flex-direction:column; gap:16px; }
+
+.context-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:18px;
+}
+.context-card h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+
+.ctx-pill-row { display:flex; flex-wrap:wrap; gap:8px; }
+.ctx-pill {
+  background:var(--card2); border:1px solid var(--border2);
+  border-radius:20px; padding:6px 14px;
+  font-size:12px; font-weight:600; cursor:pointer;
+  transition:border-color .15s, background .15s;
+}
+.ctx-pill.active {
+  background:rgba(226,55,68,0.12);
+  border-color:rgba(226,55,68,0.4);
+  color:var(--red);
+}
+
+.metric-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.metric-card {
+  background:var(--card2);
+  border:1px solid var(--border2);
+  border-radius:var(--r-md); padding:14px;
+  text-align:center;
+}
+.metric-val { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; display:block; }
+.metric-lbl { font-size:11px; color:var(--muted); margin-top:2px; }
+
+.api-demo {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:18px;
+}
+.api-demo h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+.api-url {
+  background:var(--card2); border:1px solid var(--border2);
+  border-radius:var(--r-sm); padding:10px 12px;
+  font-size:11px; font-family:monospace; color:var(--blue);
+  word-break:break-all; margin-bottom:8px; line-height:1.5;
+}
+.api-badge-row { display:flex; flex-wrap:wrap; gap:6px; }
+.api-endpoint-badge {
+  background:rgba(74,158,255,0.1); border:1px solid rgba(74,158,255,0.2);
+  color:var(--blue); font-size:10px; font-weight:700;
+  padding:3px 8px; border-radius:6px; font-family:monospace;
+}
+
+.architecture-box {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:18px;
+}
+.architecture-box h3 { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+.arch-layer {
+  background:var(--card2); border:1px solid var(--border2);
+  border-radius:var(--r-sm); padding:10px 12px; margin-bottom:8px;
+}
+.arch-layer:last-child { margin-bottom:0; }
+.arch-layer-title { font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; }
+.arch-layer-items { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.6; }
+
+.user-switch {
+  display:flex; gap:8px;
+}
+.user-btn {
+  flex:1; padding:8px;
+  background:var(--card2); border:1px solid var(--border2);
+  border-radius:10px; font-size:11px; font-weight:700; color:var(--muted);
+  transition:.15s;
+}
+.user-btn.active {
+  background:rgba(226,55,68,0.12);
+  border-color:rgba(226,55,68,0.35);
+  color:var(--red);
+}
+
+/* ─── TOAST ─── */
+.toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px);
+  background:var(--green); color:#fff;
+  padding:12px 24px; border-radius:40px;
+  font-size:13px; font-weight:700;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  z-index:999; white-space:nowrap;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* ─── EMPTY / LOADING ─── */
+.loading-pulse {
+  background:var(--card2);
+  border-radius:var(--r-md); height:80px;
+  animation:shimmer 1.5s infinite;
+  margin-bottom:10px;
+}
+@keyframes shimmer {
+  0%,100%{opacity:.4} 50%{opacity:.7}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div>
+    <span class="nav-logo">Super<span>Cart</span></span>
+    <span class="nav-subtitle">Meal Intelligence Engine</span>
+  </div>
+  <div class="nav-controls">
+    <select class="ctx-select" id="userSelect">
+      <option value="U001">👤 Arjun (Non-Veg, Bengaluru)</option>
+      <option value="U002">👤 Priya (Veg, Chennai)</option>
+      <option value="U003">👤 Rahul (Delhi, Butter Chicken)</option>
+    </select>
+    <span class="user-pill" id="dietBadge">🍖 Non-Veg</span>
+  </div>
+</nav>
+
+<div class="app-shell">
+
+<!-- ══════════ LEFT COLUMN ══════════ -->
+<div>
+
+  <!-- CART -->
+  <div class="cart-block">
+    <div class="cart-header">
+      <span style="font-size:18px">🛒</span>
+      <h2>Your Cart</h2>
+      <span class="cart-count" id="cartCount">2 items</span>
+    </div>
+    <div id="cartItems">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="delivery-bar-block" id="deliveryBar">
+      <div class="delivery-label" id="deliveryLabel">🚚 Add ₹51 more for Free Delivery!</div>
+      <div class="prog-track"><div class="prog-fill" id="progFill" style="width:73%"></div></div>
+      <div class="delivery-hint" id="deliveryHint">Free delivery above ₹399</div>
+    </div>
+  </div>
+
+  <!-- Restaurant Feedback -->
+  <div class="feedback-bar" id="feedbackBar">
+    <span class="stars-sm">★★★★★</span>
+    <span class="fb-text">"The combo with cold drink makes the biryani even better!"</span>
+    <span class="fb-name">— Arjun K.</span>
+  </div>
+
+  <!-- COMBO SUGGESTION -->
+  <div class="section-title">
+    <span>🔥</span> Perfect Combo for You
+    <span class="badge badge-red">TRENDING</span>
+  </div>
+  <div id="comboSection"><!-- rendered by JS --></div>
+
+  <!-- HORIZONTAL SCROLL -->
+  <div class="section-title">
+    <span>↔️</span> Add to Your Order
+    <span class="badge badge-gold">One Tap</span>
+  </div>
+  <div class="scroll-hint-txt">← Swipe to explore →</div>
+  <div class="h-scroll" id="hScrollItems"><!-- rendered by JS --></div>
+
+  <!-- FREQUENTLY BOUGHT -->
+  <div class="section-title">
+    <span>👥</span> Frequently Bought Together
+    <span class="badge badge-green">Smart Pairs</span>
+  </div>
+  <div id="freqItems"><!-- rendered by JS --></div>
+
+  <!-- LOCAL FAVORITE -->
+  <div id="localFavSection"></div>
+
+  <!-- SUPER CART -->
+  <div class="section-title">
+    <span>⚡</span> Super Cart Picks
+    <span class="badge badge-blue">AI-Powered</span>
+  </div>
+  <div class="super-cart-block" id="superCartItems"><!-- rendered by JS --></div>
+
+  <!-- COMBO PASSPORT -->
+  <div class="section-title">
+    <span>🎫</span> Combo Passport
+    <span class="badge badge-purple">Loyalty</span>
+  </div>
+  <div class="passport-block" id="passportBlock"><!-- rendered by JS --></div>
+
+  <!-- ORDER SUMMARY -->
+  <div class="section-title"><span>📋</span> Bill Summary</div>
+  <div class="summary-block" id="summaryBlock"><!-- rendered by JS --></div>
+
+  <button class="btn-checkout" id="checkoutBtn">
+    🚀 Proceed to Checkout · <span id="checkoutTotal">₹348</span>
+  </button>
+
+</div>
+
+<!-- ══════════ RIGHT COLUMN ══════════ -->
+<div class="right-panel">
+
+  <!-- CONTEXT CONTROLS -->
+  <div class="context-card">
+    <h3>🌤️ Context Intelligence</h3>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">Suggestions adapt to weather, time &amp; user habits</p>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;">WEATHER</div>
+      <div class="ctx-pill-row" id="weatherPills">
+        <div class="ctx-pill active" data-val="hot" onclick="setWeather(this)">☀️ Hot</div>
+        <div class="ctx-pill" data-val="rainy" onclick="setWeather(this)">🌧️ Rainy</div>
+        <div class="ctx-pill" data-val="cold" onclick="setWeather(this)">❄️ Cold</div>
+        <div class="ctx-pill" data-val="mild" onclick="setWeather(this)">🌤️ Mild</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;">TIME OF DAY</div>
+      <div class="ctx-pill-row" id="timePills">
+        <div class="ctx-pill" data-val="morning" onclick="setTime(this)">🌅 Morning</div>
+        <div class="ctx-pill" data-val="afternoon" onclick="setTime(this)">☀️ Afternoon</div>
+        <div class="ctx-pill active" data-val="evening" onclick="setTime(this)">🌆 Evening</div>
+        <div class="ctx-pill" data-val="night" onclick="setTime(this)">🌙 Night</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUSINESS METRICS -->
+  <div class="context-card">
+    <h3>📊 Business Impact</h3>
+    <div class="metric-grid">
+      <div class="metric-card">
+        <span class="metric-val" style="color:var(--red)">+32%</span>
+        <div class="metric-lbl">Avg Order Value</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-val" style="color:var(--gold)">+18%</span>
+        <div class="metric-lbl">Revenue / Session</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-val" style="color:var(--green)">64%</span>
+        <div class="metric-lbl">Add-on Accept Rate</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-val" style="color:var(--blue)">2.4x</span>
+        <div class="metric-lbl">Cart Size Growth</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="architecture-box">
+    <h3>🏗️ System Architecture</h3>
+    <div class="arch-layer">
+      <div class="arch-layer-title">🎯 Discovery Layer</div>
+      <div class="arch-layer-items">Combo rules engine · Bestseller rankings · Social trending · Local favorites</div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">🧠 Personalization Layer</div>
+      <div class="arch-layer-items">Order history scoring · Dietary filters · Removed-item memory · Taste profile</div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">🌍 Contextual Layer</div>
+      <div class="arch-layer-items">Weather API · Time-of-day rules · City/area hyper-local data</div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">💰 Persuasion Layer</div>
+      <div class="arch-layer-items">Combo quotes · Music mood lines · FOMO badges · Discount psychology</div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-title">🎮 Gamification Layer</div>
+      <div class="arch-layer-items">Combo Passport · Loyalty points · Free delivery progress</div>
+    </div>
+  </div>
+
+  <!-- API ENDPOINTS -->
+  <div class="api-demo">
+    <h3>🔌 Backend API</h3>
+    <div class="api-url">GET /api/recommendations?user_id=U001&amp;item_ids=M001&amp;weather=hot&amp;time=evening</div>
+    <div class="api-badge-row">
+      <span class="api-endpoint-badge">GET /recommendations</span>
+      <span class="api-endpoint-badge">GET /combo</span>
+      <span class="api-endpoint-badge">GET /frequently-bought</span>
+      <span class="api-endpoint-badge">GET /user-profile</span>
+      <span class="api-endpoint-badge">GET /metrics</span>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px;">Flask backend · Python · JSON dataset · Rule-based scoring engine with personalization signals</p>
+  </div>
+
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Added to cart!</div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA (embedded — mirrors dataset.json)
+// ═══════════════════════════════════════════
+const MENU = {
+  M001:{id:"M001",name:"Chicken Biryani",cat:"main",price:299,emoji:"🍛",tags:["spicy","non-veg"],margin:.62},
+  M002:{id:"M002",name:"Mutton Biryani",cat:"main",price:379,emoji:"🍖",tags:["spicy","non-veg"],margin:.55},
+  M003:{id:"M003",name:"Veg Biryani",cat:"main",price:199,emoji:"🥘",tags:["mild","veg"],margin:.70},
+  M004:{id:"M004",name:"Masala Dosa",cat:"main",price:129,emoji:"🫓",tags:["mild","veg"],margin:.75},
+  M005:{id:"M005",name:"Butter Chicken",cat:"main",price:319,emoji:"🍗",tags:["mild","non-veg"],margin:.60},
+  M006:{id:"M006",name:"Coke 500ml",cat:"drink",price:55,emoji:"🥤",tags:["cold"],margin:.80},
+  M007:{id:"M007",name:"Lassi (Sweet)",cat:"drink",price:60,emoji:"🥛",tags:["cold","sweet"],margin:.82},
+  M008:{id:"M008",name:"Masala Chai",cat:"drink",price:30,emoji:"🫖",tags:["hot","comfort"],margin:.85},
+  M009:{id:"M009",name:"Filter Coffee",cat:"drink",price:35,emoji:"☕",tags:["hot"],margin:.87},
+  M010:{id:"M010",name:"Fries (Large)",cat:"side",price:89,emoji:"🍟",tags:["crispy"],margin:.78},
+  M011:{id:"M011",name:"Onion Salad",cat:"side",price:39,emoji:"🧅",tags:["fresh"],margin:.90},
+  M012:{id:"M012",name:"Raita",cat:"side",price:49,emoji:"🥗",tags:["cooling"],margin:.88},
+  M013:{id:"M013",name:"Gulab Jamun",cat:"dessert",price:49,emoji:"🍮",tags:["sweet"],margin:.82},
+  M014:{id:"M014",name:"Ice Cream",cat:"dessert",price:65,emoji:"🍨",tags:["cold","sweet"],margin:.78},
+  M015:{id:"M015",name:"Chocolate Mousse",cat:"dessert",price:99,emoji:"🍫",tags:["sweet"],margin:.72},
+  M016:{id:"M016",name:"Garlic Naan",cat:"bread",price:45,emoji:"🫓",tags:["veg"],margin:.82},
+  M017:{id:"M017",name:"Pakoras (6pc)",cat:"snack",price:79,emoji:"🥟",tags:["hot","rainy"],margin:.80},
+  M018:{id:"M018",name:"Pickle (Achar)",cat:"condiment",price:25,emoji:"🫙",tags:["tangy"],margin:.93}
+};
+
+const COMBOS = [
+  {id:"C001",trigger:"M001",addon:"M006",name:"Biryani + Coke",score:.94,orders:12400,quote:"Life is better with biryani and a cold sip 🥤",music:"♪ Tujhe dekha toh yeh jaana sanam… (Dilwale vibes)",social:"🔴 1.2K ordered today · Trending on Instagram",orig:80,offer:55,save:25},
+  {id:"C002",trigger:"M001",addon:"M013",name:"Biryani + Gulab Jamun",score:.88,orders:8900,quote:"Love is sharing the last sweet ❤️",music:"♪ Aaj khush toh bahut hoge tum 🍨",social:"🔴 890 orders this week · Sweet lovers' pick",orig:69,offer:49,save:20},
+  {id:"C003",trigger:"M004",addon:"M009",name:"Dosa + Filter Coffee",score:.97,orders:18600,quote:"South India in every sip and bite ☕",music:"♪ Enna solla pogirai… (AR Rahman classic)",social:"🔴 Chennai's #1 Breakfast Combo",orig:45,offer:35,save:10},
+  {id:"C004",trigger:"M005",addon:"M016",name:"Butter Chicken + Naan",score:.96,orders:21000,quote:"Made for each other, just like this combo 🍗",music:"♪ Yeh dosti hum nahi todenge… (Sholay)",social:"🔴 Most ordered in Delhi NCR",orig:65,offer:45,save:20},
+  {id:"C005",trigger:"M003",addon:"M007",name:"Veg Biryani + Lassi",score:.89,orders:7200,quote:"Keep it pure, keep it cool 🥛",music:"♪ Ek pyaar ka nagma hai… (timeless)",social:"🔴 Trending among vegetarians",orig:79,offer:60,save:19}
+];
+
+const FREQ = {
+  M001:["M011","M012","M018","M013","M006"],
+  M003:["M011","M007","M012","M018"],
+  M004:["M009","M011","M018"],
+  M005:["M016","M006","M012","M014"]
+};
+
+const WEATHER_CTX = {
+  hot:["M006","M007","M014"], rainy:["M008","M017","M013"],
+  cold:["M008","M017","M013"], mild:["M006","M010","M014"]
+};
+const TIME_CTX = {
+  morning:["M009","M008","M004"], afternoon:["M006","M010","M012"],
+  evening:["M013","M008","M017"], night:["M013","M014","M015"]
+};
+
+const USERS = {
+  U001:{id:"U001",name:"Arjun Sharma",dietary:"non-veg",sweetLover:true,city:"Bengaluru",area:"Indiranagar",history:["M001","M006","M013","M011","M001","M005"],removed:[],points:340,passport:3,cartItems:["M001","M012"]},
+  U002:{id:"U002",name:"Priya Menon",dietary:"veg",sweetLover:false,city:"Chennai",area:"T. Nagar",history:["M004","M009","M003","M007","M004"],removed:["onion"],points:210,passport:1,cartItems:["M004","M018"]},
+  U003:{id:"U003",name:"Rahul Singh",dietary:"non-veg",sweetLover:true,city:"Delhi",area:"Connaught Place",history:["M005","M016","M006","M015","M005"],removed:[],points:580,passport:4,cartItems:["M005","M012"]}
+};
+
+const LOCAL = {
+  U001:{item:"M009",label:"🏙️ People in Indiranagar usually add Filter Coffee with Biryani"},
+  U002:{item:"M009",label:"🏙️ T. Nagar's iconic Dosa + Filter Coffee combo"},
+  U003:{item:"M016",label:"🏙️ Connaught Place favourite — Butter Chicken + Garlic Naan"}
+};
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let currentUser = "U001";
+let weather = "hot";
+let timeOfDay = "evening";
+let cart = {}; // itemId → qty
+let addedItems = new Set();
+
+function initCart(userId) {
+  cart = {};
+  const u = USERS[userId];
+  u.cartItems.forEach(id => cart[id] = (cart[id]||0)+1);
+}
+
+// ═══════════════════════════════════════════
+// RECOMMENDATION ENGINE
+// ═══════════════════════════════════════════
+function scoreItem(itemId, user) {
+  let s = 0;
+  const reasons = [];
+  const item = MENU[itemId];
+  if(!item) return {s,reasons};
+  const cartIds = Object.keys(cart);
+
+  // History
+  const freq = user.history.filter(h=>h===itemId).length;
+  if(freq > 0) { s += Math.min(.35, freq*.10); reasons.push(`You've had this ${freq}x`); }
+
+  // Dietary
+  if(user.dietary==="veg" && item.tags.includes("non-veg")) return {s:-1,reasons:[]};
+
+  // Sweet lover
+  if(user.sweetLover && item.cat==="dessert") { s+=.15; reasons.push("Matches your sweet preference 🍮"); }
+
+  // Removed items
+  for(const r of user.removed) {
+    if(item.name.toLowerCase().includes(r)) return {s:-1,reasons:[]};
+  }
+
+  // Weather
+  if(WEATHER_CTX[weather]?.includes(itemId)) { s+=.20; reasons.push(`Great for ${weather} weather`); }
+
+  // Time
+  if(TIME_CTX[timeOfDay]?.includes(itemId)) { s+=.15; reasons.push(`Popular at ${timeOfDay}`); }
+
+  // Combo pairing
+  const rule = COMBOS.find(c=>c.addon===itemId && cartIds.includes(c.trigger));
+  if(rule) { s+=rule.score*.30; reasons.push(`Classic pair — ${Math.round(rule.score*100)}% match`); }
+
+  // Margin boost
+  if(item.margin > .80) s+=.05;
+
+  return {s:Math.round(s*1000)/1000, reasons};
+}
+
+function getRecommendations() {
+  const user = USERS[currentUser];
+  const cartIds = Object.keys(cart);
+  const exclude = new Set(cartIds);
+
+  const scored = Object.keys(MENU)
+    .filter(id => !exclude.has(id) && !["main"].includes(MENU[id].cat))
+    .map(id => ({id, ...scoreItem(id, user)}))
+    .filter(x => x.s > 0)
+    .sort((a,b)=>b.s-a.s);
+
+  // Combo
+  const combo = COMBOS.find(c => cartIds.includes(c.trigger));
+
+  // Freq
+  const freqIds = [...new Set(cartIds.flatMap(id => FREQ[id]||[]))].filter(id=>!exclude.has(id));
+
+  return {
+    combo,
+    horizontal: scored.slice(0,6).map(x=>({...MENU[x.id], reasons:x.reasons, score:x.s})),
+    freq: freqIds.slice(0,4).map(id=>MENU[id]).filter(Boolean),
+    superCart: scored.filter(x=>x.s>=0.25).slice(0,4).map(x=>({...MENU[x.id], reasons:x.reasons, score:x.s})),
+    local: LOCAL[currentUser]
+  };
+}
+
+// ═══════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════
+function cartTotal() {
+  return Object.entries(cart).reduce((sum,[id,qty])=>{
+    return sum + (MENU[id]?.price||0)*qty;
+  }, 0);
+}
+
+function renderCart() {
+  const user = USERS[currentUser];
+  const items = Object.entries(cart);
+  const el = document.getElementById("cartItems");
+  el.innerHTML = items.map(([id,qty])=>{
+    const item = MENU[id];
+    return `<div class="cart-item">
+      <div class="item-emoji">${item.emoji}</div>
+      <div class="item-info">
+        <h4>${item.name}</h4>
+        <p>₹${item.price} each</p>
+        <div class="item-tags">${item.tags.map(t=>`<span class="item-tag">${t}</span>`).join("")}</div>
+      </div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changeQty('${id}',-1)">−</button>
+        <span class="qty-num">${qty}</span>
+        <button class="qty-btn" onclick="changeQty('${id}',1)">+</button>
+      </div>
+      <div class="item-price">₹${item.price*qty}</div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("cartCount").textContent = `${items.length} items`;
+
+  // Delivery progress
+  const total = cartTotal();
+  const FREE_AT = 399;
+  const gap = Math.max(0, FREE_AT - total);
+  const pct = Math.min(100, Math.round(total/FREE_AT*100));
+  document.getElementById("progFill").style.width = pct+"%";
+  if(gap > 0) {
+    document.getElementById("deliveryLabel").textContent = `🚚 Add ₹${gap} more for Free Delivery!`;
+    document.getElementById("deliveryLabel").style.color="var(--gold)";
+  } else {
+    document.getElementById("deliveryLabel").textContent = "🎉 You've unlocked Free Delivery!";
+    document.getElementById("deliveryLabel").style.color="var(--green)";
+  }
+
+  updateSummary();
+}
+
+function renderCombo(combo) {
+  const el = document.getElementById("comboSection");
+  if(!combo) { el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:12px 0;">No combo match for current cart items.</div>`; return; }
+  const addon = MENU[combo.addon];
+  el.innerHTML = `
+    <div class="combo-card">
+      <div class="combo-top-badge">🔥 ${combo.orders.toLocaleString()} ordered</div>
+      <div class="combo-content">
+        <div class="combo-foods">
+          <div class="combo-food-box">${MENU[combo.trigger]?.emoji}</div>
+          <span class="combo-plus-txt">+</span>
+          <div class="combo-food-box">${addon.emoji}</div>
+          <div class="combo-text">
+            <h4>${combo.name}</h4>
+            <div class="combo-quote">"${combo.quote}"</div>
+            <div class="combo-music">${combo.music}</div>
+          </div>
+        </div>
+        <div class="combo-footer">
+          <div class="social-proof">
+            <div class="social-orders">${combo.social}</div>
+            <div class="social-rating">Rated <span>4.8★</span> by 890 foodies</div>
+          </div>
+          <div class="price-block">
+            <div class="price-original">₹${combo.orig}</div>
+            <div class="price-offer">₹${combo.offer}</div>
+            <div class="price-save">Save ₹${combo.save}!</div>
+          </div>
+        </div>
+        <button class="btn-add-combo" onclick="addCombo('${combo.addon}','${combo.offer}','${combo.name}')">
+          ✚ Add Combo &amp; Save ₹${combo.save}
+        </button>
+      </div>
+    </div>`;
+}
+
+function renderHorizontal(items) {
+  const el = document.getElementById("hScrollItems");
+  el.innerHTML = items.map(item => {
+    const isSelected = addedItems.has(item.id);
+    return `<div class="h-card ${isSelected?'selected':''}" id="hcard-${item.id}" onclick="toggleHItem('${item.id}')">
+      <div class="check-badge">✓</div>
+      <span class="h-emoji">${item.emoji}</span>
+      <div class="h-name">${item.name}</div>
+      <div class="h-price">₹${item.price}</div>
+      <div class="h-deal">${item.margin>0.82?'High margin':'Bestseller'}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderFreq(items) {
+  const el = document.getElementById("freqItems");
+  const FREQ_SUBS = {
+    M011:"Ordered with biryani 94% of times",
+    M012:"People add this with almost everything",
+    M018:"Instagram trending — #AcharLovers 📸",
+    M007:"Most paired with Veg items · ⭐ 4.7",
+    M009:"Chennai's classic morning ritual ☕",
+    M006:"1.2K+ orders today alone 🔥",
+    M016:"Best paired with gravy dishes",
+    M013:"Sweet lovers' must-add 🍮",
+    M014:"Ordered as post-meal treat"
+  };
+  el.innerHTML = items.map(item=>`
+    <div class="freq-card ${addedItems.has(item.id)?'added':''}" id="fcard-${item.id}">
+      <div class="freq-emoji">${item.emoji}</div>
+      <div class="freq-info">
+        <h4>${item.name}</h4>
+        <div class="freq-sub">${FREQ_SUBS[item.id]||"Frequently paired with your order"}</div>
+      </div>
+      <div class="freq-right">
+        <div class="freq-price">₹${item.price}</div>
+        <button class="freq-add-btn" onclick="addFreqItem('${item.id}')">${addedItems.has(item.id)?'✓ Added':'+ Add'}</button>
+      </div>
+    </div>`).join("");
+}
+
+function renderLocal(local) {
+  const el = document.getElementById("localFavSection");
+  if(!local) {el.innerHTML="";return;}
+  const item = MENU[local.item];
+  if(!item){el.innerHTML="";return;}
+  el.innerHTML = `
+    <div class="local-fav">
+      <div class="local-icon">📍</div>
+      <div class="local-text">${local.label} — <span class="local-item-name">${item.emoji} ${item.name} (₹${item.price})</span></div>
+      <button class="super-add-btn" onclick="addItem('${item.id}','${item.name}')">Add</button>
+    </div>`;
+}
+
+function renderSuperCart(items) {
+  const el = document.getElementById("superCartItems");
+  const reasonColor = r => r.includes("preference")||r.includes("sweet")?"green":r.includes("weather")||r.includes("time")?"gold":"";
+  el.innerHTML = `
+    <div class="super-header">
+      <span>⚡</span>
+      <h3>Super Cart Picks</h3>
+      <span class="badge badge-blue">AI-Powered · Personalised</span>
+    </div>
+    ${items.map(item=>`
+      <div class="super-item">
+        <div class="super-emoji">${item.emoji}</div>
+        <div class="super-info">
+          <h4>${item.name}</h4>
+          <div class="reason ${reasonColor(item.reasons[0]||'')}">${item.reasons[0]||"Smart pick for you"}</div>
+        </div>
+        <button class="super-add-btn" onclick="addItem('${item.id}','${item.name}')">₹${item.price} Add</button>
+      </div>`).join("")}`;
+}
+
+function renderPassport() {
+  const user = USERS[currentUser];
+  const progress = user.passport;
+  const pct = Math.round(progress/5*100);
+  document.getElementById("passportBlock").innerHTML = `
+    <div class="passport-header">
+      <span>🎫</span>
+      <h4>Combo Passport</h4>
+      <span class="badge badge-purple" style="margin-left:auto">${progress}/5</span>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Try 5 different Biryani combos this month</div>
+    <div class="passport-prog-track">
+      <div class="passport-prog-fill" style="width:${pct}%"></div>
+    </div>
+    <div class="passport-labels">
+      <span>${progress} completed</span>
+      <span>${5-progress} to go</span>
+    </div>
+    <div class="passport-reward">🎁 Reward: Free Gulab Jamun on next order!</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">Loyalty points: <strong style="color:var(--gold)">${user.points} pts</strong></div>`;
+}
+
+function updateSummary() {
+  const total = cartTotal();
+  const addOnTotal = [...addedItems].reduce((s,id)=>(s+(MENU[id]?.price||0)),0);
+  const deliveryFee = (total+addOnTotal) >= 399 ? 0 : 20;
+  const savings = [...addedItems].reduce((s,id)=>{
+    const rule = COMBOS.find(c=>c.addon===id);
+    return s + (rule?.save||0);
+  },0);
+  const grand = total + addOnTotal + deliveryFee;
+
+  const entries = Object.entries(cart).map(([id,qty])=>`
+    <div class="summary-row"><span>${MENU[id]?.emoji} ${MENU[id]?.name}</span><span>₹${(MENU[id]?.price||0)*qty}</span></div>`).join("");
+  const addOns = [...addedItems].map(id=>`
+    <div class="summary-row"><span>${MENU[id]?.emoji} ${MENU[id]?.name}</span><span>₹${MENU[id]?.price}</span></div>`).join("");
+
+  document.getElementById("summaryBlock").innerHTML = `
+    <h3>📋 Bill Summary</h3>
+    ${entries}${addOns}
+    <div class="summary-row"><span>Delivery fee</span><span>${deliveryFee===0?'<span style="color:var(--green)">FREE 🎉</span>':'₹'+deliveryFee}</span></div>
+    ${savings>0?`<div class="summary-row saving"><span>🎉 Combo Savings</span><span>−₹${savings}</span></div>`:''}
+    <div class="summary-row total"><span>Total</span><span>₹${grand}${savings>0?` <span style="color:var(--green);font-size:12px">(Saved ₹${savings})</span>`:''}</span></div>`;
+
+  document.getElementById("checkoutTotal").textContent = `₹${grand}`;
+}
+
+// ═══════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════
+function changeQty(id, delta) {
+  cart[id] = (cart[id]||0) + delta;
+  if(cart[id] <= 0) delete cart[id];
+  renderAll();
+}
+
+function toggleHItem(id) {
+  if(addedItems.has(id)){
+    addedItems.delete(id);
+    showToast(`Removed ${MENU[id]?.name}`,"#e74c3c");
+  } else {
+    addedItems.add(id);
+    showToast(`Added ${MENU[id]?.emoji} ${MENU[id]?.name}!`);
+  }
+  document.getElementById(`hcard-${id}`)?.classList.toggle("selected");
+  updateSummary();
+}
+
+function addFreqItem(id) {
+  if(!addedItems.has(id)){
+    addedItems.add(id);
+    showToast(`Added ${MENU[id]?.emoji} ${MENU[id]?.name}!`);
+  }
+  const el = document.getElementById(`fcard-${id}`);
+  if(el){
+    el.classList.add("added");
+    el.querySelector(".freq-add-btn").textContent="✓ Added";
+  }
+  updateSummary();
+}
+
+function addItem(id, name) {
+  if(!addedItems.has(id)) {
+    addedItems.add(id);
+    showToast(`Added ${MENU[id]?.emoji} ${name}!`);
+    updateSummary();
+  }
+}
+
+function addCombo(addonId, price, name) {
+  addedItems.add(addonId);
+  showToast(`🔥 Combo added! Saved ₹${COMBOS.find(c=>c.addon===addonId)?.save||0}`);
+  updateSummary();
+}
+
+function setWeather(el) {
+  document.querySelectorAll("#weatherPills .ctx-pill").forEach(p=>p.classList.remove("active"));
+  el.classList.add("active");
+  weather = el.dataset.val;
+  renderAll();
+}
+function setTime(el) {
+  document.querySelectorAll("#timePills .ctx-pill").forEach(p=>p.classList.remove("active"));
+  el.classList.add("active");
+  timeOfDay = el.dataset.val;
+  renderAll();
+}
+
+document.getElementById("userSelect").addEventListener("change", function(){
+  currentUser = this.value;
+  addedItems.clear();
+  initCart(currentUser);
+  const user = USERS[currentUser];
+  const dietBadge = document.getElementById("dietBadge");
+  dietBadge.textContent = user.dietary==="veg"?"🥦 Veg":"🍖 Non-Veg";
+  renderAll();
+});
+
+document.getElementById("checkoutBtn").addEventListener("click",()=>{
+  showToast("🚀 Redirecting to Checkout...", "var(--red)");
+});
+
+let toastTimer;
+function showToast(msg, color="var(--green)") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.background = color;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+// ═══════════════════════════════════════════
+// MAIN RENDER
+// ═══════════════════════════════════════════
+function renderAll() {
+  const recs = getRecommendations();
+  renderCart();
+  renderCombo(recs.combo);
+  renderHorizontal(recs.horizontal);
+  renderFreq(recs.freq);
+  renderLocal(recs.local);
+  renderSuperCart(recs.superCart);
+  renderPassport();
+  updateSummary();
+}
+
+// Init
+initCart(currentUser);
+renderAll();
+</script>
+</body>
+</html>
